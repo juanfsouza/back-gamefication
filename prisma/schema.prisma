@@ -14,21 +14,48 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  email      String   @unique
-  name       String?
-  streak     Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id              String           @id @default(uuid())
+  email           String           @unique
+  password        String           
+  name            String?
+  streak          Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
-  NewsletterOpen NewsletterOpen[]
+  newsletters     NewsletterOpen[] 
+  streakData      Streak?          
+}
+
+model Newsletter {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  opens     NewsletterOpen[]
+}
+
+model Streak {
+  id             Int      @id @default(autoincrement())
+  userId         String   @unique
+  currentStreak  Int      @default(0)
+  lastOpenedAt   DateTime
+  user           User     @relation(fields: [userId], references: [id])
 }
 
 model NewsletterOpen {
-  id         String   @id @default(uuid())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     String
-  date       DateTime @default(now())
-  newsletterId String
+  id             String   @id @default(uuid())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  date           DateTime @default(now())
+  newsletter     Newsletter @relation(fields: [newsletterId], references: [id])
+  newsletterId   String
 }
 
+model Analytics {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  streak    Int 
+  date      DateTime @default(now())
+}

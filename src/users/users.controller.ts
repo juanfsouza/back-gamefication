@@ -1,14 +1,18 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { AuthGuard } from '../auth/auth.guard';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('me')
-  @UseGuards(AuthGuard)
-  async getProfile(@Req() req) {
-    return this.usersService.findOrCreateUser(req.user.email);
+  @Get(':id')
+  async getUserStats(@Param('id') id: string) {
+    return this.usersService.getUserStats(id);
+  }
+
+  @Patch(':id')
+  async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.updateUser(id, updateUserDto);
   }
 }
