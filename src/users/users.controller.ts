@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Patch, Body } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -7,8 +7,15 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get(':id')
-  async getUserStats(@Param('id') id: string) {
+  async getUser(@Param('id') id: string) {
+    console.log(`🔎 Buscando usuário com ID: ${id}`);
     return this.usersService.getUserStats(id);
+  }
+
+  @Get()
+  async getAllUsers() {
+    console.log(`📋 Buscando todos os usuários`);
+    return this.usersService.getAllUsers();
   }
 
   @Patch(':id')

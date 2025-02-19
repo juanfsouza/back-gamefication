@@ -7,6 +7,8 @@ import { StreaksModule } from './streaks/streaks.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from 'common/filters/http-exception.filter';
 
 @Module({
   imports: [
@@ -18,12 +20,18 @@ import { PrismaModule } from './prisma/prisma.module';
     WebhooksModule,
     AnalyticsModule,
   ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .exclude('/auth/register', '/auth/login')  // Excluindo a rota de registro
+      .exclude('/auth/register', '/auth/login') // Excluindo a rota de registro
       .forRoutes('*');
   }
 }

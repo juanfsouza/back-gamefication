@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,16 +8,17 @@ datasource db {
 }
 
 model User {
-  id              String           @id @default(uuid())
-  email           String           @unique
-  password        String           
-  name            String?
-  streak          Int              @default(0)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id          String           @id @default(uuid())
+  email       String           @unique
+  password    String           // Add this line
+  name        String?
+  streak      Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
-  newsletters     NewsletterOpen[] 
-  streakData      Streak?          
+  newsletters  NewsletterOpen[] 
+  streakRecord Streak?         @relation(name: "StreakToUser") 
+  analytics    Analytics?      @relation(name: "AnalyticsToUser") 
 }
 
 model Newsletter {
@@ -41,16 +36,19 @@ model Streak {
   userId         String   @unique
   currentStreak  Int      @default(0)
   lastOpenedAt   DateTime
-  user           User     @relation(fields: [userId], references: [id])
+  user           User     @relation(name: "StreakToUser", fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
 model NewsletterOpen {
-  id             String   @id @default(uuid())
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         String
-  date           DateTime @default(now())
-  newsletter     Newsletter @relation(fields: [newsletterId], references: [id])
-  newsletterId   String
+  id            String      @id @default(uuid())
+  userId        String
+  newsletterId  String
+  date          DateTime    @default(now())
+
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  newsletter   Newsletter  @relation(fields: [newsletterId], references: [id])
 }
 
 model Analytics {
@@ -58,4 +56,6 @@ model Analytics {
   userId    String   @unique
   streak    Int 
   date      DateTime @default(now())
+
+  user      User     @relation(name: "AnalyticsToUser", fields: [userId], references: [id])
 }

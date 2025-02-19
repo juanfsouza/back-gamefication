@@ -15,36 +15,35 @@ export class StreaksService {
     });
   }
 
-  async updateStreak(userId: string) {
-    console.log(`Procurando usuário com ID: ${userId}`);
+  async updateStreak(userId: string, updateStreakDto: { currentStreak: number, lastOpenedAt: Date }) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-
+  
     if (!user) {
       throw new Error('Usuário não encontrado');
     }
-
+  
     const streak = await this.prisma.streak.findUnique({ where: { userId } });
-
+  
     if (!streak) {
       const newStreak = await this.prisma.streak.create({
         data: {
           userId,
-          currentStreak: 1,
-          lastOpenedAt: new Date(),
+          currentStreak: updateStreakDto.currentStreak,
+          lastOpenedAt: updateStreakDto.lastOpenedAt,
         },
       });
-      await this.analyticsService.recordStreak(userId, 1);
+      await this.analyticsService.recordStreak(userId, updateStreakDto.currentStreak);
       return newStreak;
     }
-
+  
     const updatedStreak = await this.prisma.streak.update({
       where: { userId },
       data: {
-        currentStreak: streak.currentStreak + 1,
-        lastOpenedAt: new Date(),
+        currentStreak: updateStreakDto.currentStreak,
+        lastOpenedAt: updateStreakDto.lastOpenedAt,
       },
     });
-
+  
     await this.analyticsService.recordStreak(userId, updatedStreak.currentStreak);
     return updatedStreak;
   }
