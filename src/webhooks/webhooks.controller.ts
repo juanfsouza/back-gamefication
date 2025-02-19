@@ -1,6 +1,7 @@
-import { Controller, Post, Body, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Logger, UsePipes } from '@nestjs/common';
 import { WebhooksService } from './webhooks.service';
-import { CreateWebhookDto } from './dto/create-webhook.dto';
+import { CreateWebhookSchema, CreateWebhookDto } from './dto/create-webhook.dto';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 @Controller('webhooks')
 export class WebhooksController {
@@ -9,6 +10,7 @@ export class WebhooksController {
   constructor(private readonly webhooksService: WebhooksService) {}
 
   @Post('newsletter-opened')
+  @UsePipes(new ZodValidationPipe(CreateWebhookSchema))
   async handleNewsletterOpened(@Body() createWebhookDto: CreateWebhookDto) {
     this.logger.log(`📩 Recebendo webhook: ${JSON.stringify(createWebhookDto)}`);
 
